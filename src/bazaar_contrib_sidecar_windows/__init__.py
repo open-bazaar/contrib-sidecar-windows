@@ -37,10 +37,9 @@ async def lifespan(ctx: Context, config: Config):
         )
         endpoint = rf"\\.\pipe\bcn-sidecar-{uuid5(NAMESPACE_URL, directory).hex}"
 
-    connection = Connection(partial(connect, endpoint))
-    client = Client(
-        connection.send, connection.aclose, ctx.accept(TIMER), timeout=config.timeout
-    )
+    timer = ctx.accept(TIMER)
+    connection = Connection(partial(connect, endpoint), timer)
+    client = Client(connection.send, connection.aclose, timer, timeout=config.timeout)
     try:
         ctx.offer(SERVER, Listener(endpoint))
         ctx.offer(CLIENT, client)
