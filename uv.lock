@@ -126,7 +126,7 @@ wheels = [
 
 [[package]]
 name = "bazaar-contrib-sidecar-windows"
-version = "0.3.0rc10"
+version = "0.3.0rc11"
 source = { editable = "." }
 dependencies = [
     { name = "bazaar-contrib-sidecar" },
