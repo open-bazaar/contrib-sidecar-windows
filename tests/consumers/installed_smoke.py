@@ -148,10 +148,10 @@ async def exercise(directory: Path, transport: str, control: str):
             )
         }
     )
-    async with node(config):
-        # The consumer graph starts only the provider, while the other process serves handlers.
-        async with ContribHub() as hub, hub.enable(entries):
-            client = clients[0]
+    # The consumer graph starts only the provider, while the other process serves handlers.
+    async with ContribHub() as hub, hub.enable(entries):
+        client = clients[0]
+        async with node(config):
             for _ in range(16):
                 assert await client.call("journal", "tag") == "before"
             await client.call("journal", "write", "direct cross-process service\n")
@@ -210,10 +210,13 @@ async def exercise(directory: Path, transport: str, control: str):
         assert "before stopped" in text and "after started" in text
         assert "service after refresh" in text
 
-    # A graceful restart reuses the native address and the saved configuration.
-    async with node(config):
-        await command(config, "remote", "append", "after restart")
-    assert "after restart" in await asyncio.to_thread(journal.read_text)
+        # A graceful restart reuses the native address and the saved configuration,
+        # and the same client reaches the new process.
+        async with node(config):
+            await command(config, "remote", "append", "after restart")
+            await client.call("journal", "write", "same client after restart\n")
+    text = await asyncio.to_thread(journal.read_text)
+    assert "after restart" in text and "same client after restart" in text
 
     # The journal still runs as an ordinary local plugin without either sidecar entry.
     payload["contribs"] = [payload["contribs"][-1]]
@@ -222,7 +225,7 @@ async def exercise(directory: Path, transport: str, control: str):
         pass
     assert "after stopped" in await asyncio.to_thread(journal.read_text)
     print(
-        f"Installed {provider} with V4 control={control}: remote entries, hot apply and restart passed"
+        f"Installed {provider} with V4 control={control}: remote entries, hot apply, restart and reconnect passed"
     )
 
 

@@ -50,8 +50,9 @@ async def lifespan(ctx: Context, config: Config):
         port = int(await asyncio.to_thread(config.endpoint.read_text))
         return await asyncio.open_connection("127.0.0.1", port)
 
-    connection = Connection(connect)
-    client = Client(connection.send, connection.aclose, ctx.accept(TIMER))
+    timer = ctx.accept(TIMER)
+    connection = Connection(connect, timer)
+    client = Client(connection.send, connection.aclose, timer)
     try:
         ctx.offer(SERVER, Server(config.endpoint))
         ctx.offer(CLIENT, client)
