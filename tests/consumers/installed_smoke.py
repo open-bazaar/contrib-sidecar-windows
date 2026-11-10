@@ -157,9 +157,14 @@ async def exercise(directory: Path, transport: str, control: str):
             await client.call("journal", "write", "direct cross-process service\n")
             await command(config, "remote", "append", "cross-process note 🌙")
             await client.call("journal", "append", "x" * 300_000)
-            text = await asyncio.to_thread(journal.read_text)
+            # Notes are written by their event's listener, which the call does not wait for.
+            async with asyncio.timeout(30):
+                while True:
+                    text = await asyncio.to_thread(journal.read_text)
+                    if "cross-process note 🌙" in text and "x" * 300_000 in text:
+                        break
+                    await asyncio.sleep(0.1)
             assert "direct cross-process service" in text
-            assert "cross-process note 🌙" in text and "x" * 300_000 in text
             for timeout in (None, 0.2):
                 waiting = asyncio.create_task(
                     client.call("journal", "wait", 60_000, timeout=timeout)
