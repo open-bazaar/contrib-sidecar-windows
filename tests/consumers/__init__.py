@@ -53,7 +53,7 @@ def environment(tmp_path_factory):
             "bazaar-contrib-status~=0.3.0rc9",
             "bazaar-contrib-logging~=0.3.0rc9",
             "bazaar-contrib-node-management~=0.3.0rc9",
-            "bazaar-contrib-timer-wheel~=0.3.0rc9",
+            "bazaar-contrib-timer~=0.3.0rc26",
             "bazaar-contrib-sidecar~=0.3.0rc9",
             *map(str, wheels.glob("*.whl")),
         ],

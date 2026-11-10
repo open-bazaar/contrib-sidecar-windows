@@ -52,7 +52,7 @@ dev = [
     "pytest-asyncio>=0.24.0",
     "ruff>=0.9.0",
     "bazaar-compute-node~=0.3.0rc9",
-    "bazaar-contrib-timer-wheel~=0.3.0rc9",
+    "bazaar-contrib-timer~=0.3.0rc26",
     "bazaar-contrib-sidecar-unix~=0.3.0rc9",
     "tomli-w>=1.2.0",
 ]
